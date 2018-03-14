@@ -19,7 +19,6 @@ class Push2UsbCommunicator : UsbCommunicator {
 public:
     Push2UsbCommunicator(const uint16_t vendorId, const uint16_t productId) :
             UsbCommunicator(vendorId, productId), currentLine(0) {}
-
     inline void setPixelValue(int x, int y, Push2Display::pixel_t value) {
         pixels[y * LINE_WIDTH + x] = value;
     }

@@ -1156,7 +1156,7 @@ add_executable (APP
     "../../JuceLibraryCode/include_juce_gui_basics.mm"
     "../../JuceLibraryCode/include_juce_gui_extra.mm"
     "../../JuceLibraryCode/JuceHeader.h"
-        ../../Source/usb/UsbCommunicator.cpp ../../Source/midi/MidiCommunicator.cpp ../../Source/midi/MidiCommunicator.h ../../Source/push2/Push2MidiCommunicator.h)
+        ../../Source/usb/UsbCommunicator.cpp ../../Source/midi/MidiCommunicator.cpp ../../Source/midi/MidiCommunicator.h ../../Source/push2/Push2MidiCommunicator.h ../../Source/command/Command.cpp ../../Source/command/Command.h ../../Source/command_observer/CommandObserver.cpp ../../Source/command_observer/CommandObserver.h ../../Source/command_observer/CommandHistoryManager.h ../../Source/command/MidiCommand.h ../../Source/command_observer/MidiCommandObserver.cpp ../../Source/command_observer/MidiCommandObserver.h ../../Source/command/StatefulCommand.h)
 
 set_source_files_properties ("../../Resources/PushStartup.png" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties ("../../Source/push2/Push2UsbCommunicator.h" PROPERTIES HEADER_FILE_ONLY TRUE)

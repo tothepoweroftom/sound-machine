@@ -5,9 +5,9 @@
 
 #include "Push2Animator.h"
 
-#include <iomanip>
 #include <deque>
-#include <sstream>
+#include <command_observer/CommandHistoryManager.h>
+#include <command_observer/MidiCommandObserver.h>
 
 /*
     This component lives inside our window, and this is where you should put all
@@ -29,49 +29,15 @@ public:
         status.setText("Push 2 connected", juce::dontSendNotification);
         push2MidiCommunicator.setMidiInputCallback(
                 [this](const MidiMessage &message) {
-                    this->processMidiInput(message);
+                    std::make_unique<MidiCommand>(message)->execute();
                 });
+
+        Command::registerObserver(std::make_unique<CommandHistoryManager>(), StatefulCommand::getType());
+        Command::registerObserver(std::make_unique<MidiCommandObserver>(&status), MidiCommand::getType());
     }
 
     ~MainContentComponent() override {
         shutdownAudio();
-    }
-
-    void processMidiInput(const MidiMessage &message) {
-        if (message.isAftertouch()) {
-            const MessageManagerLock lock;
-            status.setText("Aftertouch", juce::dontSendNotification);
-            return;
-        } else if (message.isChannelPressure()) {
-            const MessageManagerLock lock;
-            status.setText("Channel pressure", juce::dontSendNotification);
-            return;
-        }
-        if (message.getRawDataSize() == 3) {
-            auto data = message.getRawData();
-            std::ostringstream oss;
-            oss << "Midi ("
-                << message.getTimeStamp() << ") :"
-                << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << int(data[0]) << " - "
-                << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << int(data[1]) << " - "
-                << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << int(data[2]);
-
-            midiMessageStack.push_back(oss.str());
-            if (midiMessageStack.size() > 4) {
-                midiMessageStack.pop_front();
-            }
-
-            const MessageManagerLock lock;
-
-            std::string statusStr;
-            for (const auto &s : midiMessageStack) {
-                statusStr += s + "\n";
-            }
-            status.setText(statusStr, juce::dontSendNotification);
-        } else {
-            const MessageManagerLock lock;
-            status.setText("MIDI!!!", juce::dontSendNotification);
-        }
     }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override {
@@ -119,7 +85,6 @@ private:
     Push2Animator push2Animator;
     Push2MidiCommunicator push2MidiCommunicator;
     Label status;
-    std::deque<std::string> midiMessageStack;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
