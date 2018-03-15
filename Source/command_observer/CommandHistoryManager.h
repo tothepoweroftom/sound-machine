@@ -5,11 +5,10 @@
 #include <command/StatefulCommand.h>
 #include "command/Command.h"
 
-class CommandHistoryManager : public CommandObserver {
+class CommandHistoryManager : public CommandObserver<StatefulCommand> {
 public:
-    void onCommandExecuted(const Command& command) override {
-        const auto& statefulCommand = dynamic_cast<const StatefulCommand&>(command);
-        undoStack.push(std::move(std::make_unique<StatefulCommand>(statefulCommand)));
+    void onCommandExecuted(const StatefulCommand& command) override {
+        undoStack.push(std::move(std::make_unique<StatefulCommand>(command)));
     }
 
 private:

@@ -5,18 +5,14 @@
 #include "StatefulCommand.h"
 #include <utility>
 
-class MidiCommand : public Command {
+class MidiCommand : public Command<MidiCommand> {
     typedef Command super;
 public:
     explicit MidiCommand(MidiMessage message): message(std::move(message)) {}
 
     virtual void execute() const {
         super::execute();
-        notifyObservers(*this, MidiCommand::getType());
-    }
-
-    static std::type_index getType() {
-        return typeid(MidiCommand);
+        notifyObservers();
     }
 
     const MidiMessage& getMessage() const {

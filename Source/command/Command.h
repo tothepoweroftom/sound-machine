@@ -5,27 +5,24 @@
 #include <list>
 #include <unordered_map>
 
-class Command {
+template<class T> class Command {
 public:
     virtual ~Command() = default;
     virtual void execute() const {
-        notifyObservers(*this, Command::getType());
+        notifyObservers();
     }
 
-    static std::type_index getType() {
-        return typeid(Command);
+    static void registerObserver(std::unique_ptr<CommandObserver<T>> observer) {
+        T::observers.push_back(std::move(observer));
     }
 
-    static void registerObserver(std::unique_ptr<CommandObserver> observer, std::type_index commandType) {
-        observersForCommandClass[commandType].push_back(std::move(observer));
-    }
-
-    static void notifyObservers(const Command &command, const std::type_index type) {
-        auto &listeners = observersForCommandClass[type];
-        for (auto &listener : listeners) {
-            listener->onCommandExecuted(command);
+    void notifyObservers() const {
+        for (auto &observer : T::observers) {
+            observer->onCommandExecuted(static_cast<const T&>(*this));
         }
     }
 
-    static std::unordered_map<std::type_index, std::list<std::unique_ptr<CommandObserver> > > observersForCommandClass;
+    static std::list<std::unique_ptr<CommandObserver<T>> > observers;
 };
+
+template <class T> std::list<std::unique_ptr<CommandObserver<T> > > Command<T>::observers;

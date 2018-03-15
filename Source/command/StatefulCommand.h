@@ -3,18 +3,14 @@
 #include <typeindex>
 #include "Command.h"
 
-class StatefulCommand : public Command {
+class StatefulCommand : public Command<StatefulCommand> {
     typedef Command super;
 
 public:
     virtual void execute() const {
         super::execute();
-        notifyObservers(*this, StatefulCommand::getType());
+        notifyObservers();
     }
 
     virtual void revert() const {};
-
-    static std::type_index getType() {
-        return typeid(StatefulCommand);
-    }
 };

@@ -2,9 +2,8 @@
 #include <sstream>
 #include <iomanip>
 
-void MidiCommandObserver::onCommandExecuted(const Command &command) {
-    const auto& midiCommand = dynamic_cast<const MidiCommand&>(command);
-    const MidiMessage& message = midiCommand.getMessage();
+void MidiCommandObserver::onCommandExecuted(const MidiCommand &command) {
+    const MidiMessage& message = command.getMessage();
     if (message.isAftertouch()) {
         midiMessageStack.emplace_back("Aftertouch");
     } else if (message.isChannelPressure()) {

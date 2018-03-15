@@ -30,10 +30,11 @@ public:
         push2MidiCommunicator.setMidiInputCallback(
                 [this](const MidiMessage &message) {
                     std::make_unique<MidiCommand>(message)->execute();
+                    std::make_unique<StatefulCommand>()->execute();
                 });
 
-        Command::registerObserver(std::make_unique<CommandHistoryManager>(), StatefulCommand::getType());
-        Command::registerObserver(std::make_unique<MidiCommandObserver>(&status), MidiCommand::getType());
+        StatefulCommand::registerObserver(std::make_unique<CommandHistoryManager>());
+        MidiCommand::registerObserver(std::make_unique<MidiCommandObserver>(&status));
     }
 
     ~MainContentComponent() override {

@@ -3,10 +3,10 @@
 
 #include <memory>
 
-class Command;
+template<class T> class Command;
 
-class CommandObserver {
+template <class T> class CommandObserver {
 public:
     virtual ~CommandObserver() = default;
-    virtual void onCommandExecuted(const Command& command) = 0;
+    virtual void onCommandExecuted(const T& command) = 0;
 };
