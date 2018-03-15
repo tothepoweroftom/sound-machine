@@ -5,24 +5,32 @@
 #include <list>
 #include <unordered_map>
 
-template<class T> class Command {
+template<class Top> class Command {
 public:
-    virtual ~Command() = default;
-    virtual void execute() const {
-        notifyObservers();
+    void execute() const {
+        notifyObservers(Command::observers);
     }
 
-    static void registerObserver(std::unique_ptr<CommandObserver<T>> observer) {
-        T::observers.push_back(std::move(observer));
+    static void registerObserver(std::unique_ptr<CommandObserver<Top>> observer) {
+        Top::observers.push_back(std::move(observer));
     }
 
-    void notifyObservers() const {
-        for (auto &observer : T::observers) {
-            observer->onCommandExecuted(static_cast<const T&>(*this));
+    void notifyObservers(const std::list<std::unique_ptr<CommandObserver<Top>>>& list) const {
+        for (auto &observer : Top::observers) {
+            observer->onCommandExecuted(cTop());
         }
     }
 
-    static std::list<std::unique_ptr<CommandObserver<T>> > observers;
+    static std::list<std::unique_ptr<CommandObserver<Top>> > observers;
+
+protected:
+    inline Top& top() const {
+        return static_cast<Top&>(*this);
+    }
+
+    inline const Top& cTop() const {
+        return static_cast<const Top&>(*this);
+    }
 };
 
-template <class T> std::list<std::unique_ptr<CommandObserver<T> > > Command<T>::observers;
+template <class Top> std::list<std::unique_ptr<CommandObserver<Top> > > Command<Top>::observers;

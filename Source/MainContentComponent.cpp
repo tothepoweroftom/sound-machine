@@ -30,7 +30,7 @@ public:
         push2MidiCommunicator.setMidiInputCallback(
                 [this](const MidiMessage &message) {
                     std::make_unique<MidiCommand>(message)->execute();
-                    std::make_unique<StatefulCommand>()->execute();
+                    //std::make_unique<StatefulCommand>()->execute();
                 });
 
         StatefulCommand::registerObserver(std::make_unique<CommandHistoryManager>());
