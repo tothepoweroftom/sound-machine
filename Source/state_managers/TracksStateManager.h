@@ -215,8 +215,8 @@ public:
         }
     }
 
-    void selectProcessor(const ValueTree& processor) {
-        selectProcessorSlot(processor.getParent(), processor[IDs::processorSlot], true);
+    void selectProcessor(const ValueTree& processor, bool deselectOthers=true) {
+        selectProcessorSlot(processor.getParent(), processor[IDs::processorSlot], deselectOthers);
     }
 
     void selectProcessorSlot(const ValueTree& track, int slot, bool deselectOthers=true) {
@@ -443,18 +443,43 @@ public:
     }
 
     void moveProcessor(ValueTree &processorState, int toTrackIndex, int toSlot, UndoManager *undoManager) {
-        auto toTrack = getTrack(toTrackIndex);
+        const auto& fromTrack = processorState.getParent();
+        const auto &toTrack = getTrack(toTrackIndex);
+
         int fromSlot = processorState[IDs::processorSlot];
-        if (fromSlot == toSlot && processorState.getParent() == toTrack)
+        if (fromSlot == toSlot && fromTrack == toTrack)
             return;
 
-        setProcessorSlot(processorState.getParent(), processorState, toSlot, undoManager);
+        int trackDiff = toTrackIndex - indexOf(fromTrack); // todo handle master
+        int slotDiff = toSlot - fromSlot;
+        const Point<int> diff(trackDiff, slotDiff);
 
-        const int insertIndex = getParentIndexForProcessor(toTrack, processorState, undoManager);
-        toTrack.moveChildFromParent(processorState.getParent(), processorState.getParent().indexOf(processorState), insertIndex, undoManager);
-
-        makeSlotsValid(toTrack, undoManager);
+        const auto selectedItems = findAllSelectedItems();
+        for (auto selectedItem : selectedItems) {
+            if (selectedItem.hasType(IDs::PROCESSOR)) {
+                const auto& track = selectedItem.getParent();
+                const auto gridPosition = trackAndSlotToGridPosition({track, selectedItem});
+                const auto newGridPosition = gridPosition + diff;
+                const auto newTrackAndSlot = gridPositionToTrackAndSlot(newGridPosition);
+                setProcessorSlot(track, selectedItem, newTrackAndSlot.slot, undoManager);
+            }
+        }
+        for (const auto& selectedItem : selectedItems) {
+            if (selectedItem.hasType(IDs::PROCESSOR)) {
+                const auto& track = selectedItem.getParent();
+                const auto gridPosition = trackAndSlotToGridPosition({track, selectedItem});
+                auto newGridPosition = gridPosition;
+                newGridPosition.x += trackDiff;
+                auto newTrackAndSlot = gridPositionToTrackAndSlot(newGridPosition);
+                const int insertIndex = getParentIndexForProcessor(newTrackAndSlot.track, selectedItem, undoManager);
+                newTrackAndSlot.track.moveChildFromParent(processorState.getParent(), processorState.getParent().indexOf(selectedItem), insertIndex, undoManager);
+            }
+        }
+        for (const auto& track : tracks) {
+            makeSlotsValid(track, undoManager);
+        }
     }
+
 
     void deleteTrackOrProcessor(const ValueTree &item, UndoManager *undoManager) {
         if (!item.isValid())

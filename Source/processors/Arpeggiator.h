@@ -32,7 +32,6 @@ public:
     }
 
     void processBlock(AudioBuffer<float> &buffer, MidiBuffer &midi) override {
-        // however we use the buffer to get timing information
         auto numSamples = buffer.getNumSamples();
         auto noteDuration = static_cast<int> (std::ceil(rate * 0.25f * (0.1f + (1.0f - (*speed)))));
 
