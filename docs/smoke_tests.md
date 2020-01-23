@@ -76,3 +76,19 @@ For example, to see the verified functionality for release `0.0.1`, check out th
   - Pressing a pad in session-mode does not send note data to destination processor
 * When midi output pin of "Push 2 Live Port" input device is disconnected from its destination
   - Push 2 enters session-mode and pad lights turn off
+
+
+## Selection behavior
+
+### Multi-select
+
+* Push 2, right-pane, and default input-connection behavior (see above) all treat the _last selected_ item as the "selected item"
+  - Selecting a track with multiple processors focuses the topmost processor
+  - Selecting multiple tracks/processors focuses the last-selected processor (or last-selected track's topmost processor)
+  - Deselecting a track/processor (with opt-click) does _not_ change the focus
+  - Mouse-down on one of multiple selected tracks/processors (beginning a drag) focuses
+  - Selecting empty slot, or track with no processors, sets focus to none
+
+### Multi-move
+
+TODO
